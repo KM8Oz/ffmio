@@ -1,3 +1,28 @@
+
+html {
+  font-family: system-ui, sans-serif;
+  font-size: 1.25rem;
+}
+.MuiDataGrid-root{
+  font-size: 0.6rem !important;
+
+}
+.MuiDataGrid-root .MuiDataGrid-cellRight{
+  text-align: center !important;
+}
+.MuiDataGrid-cell{
+  width: fit-content  !important;
+  max-width: fit-content !important;
+}
+body {
+  margin: 0;
+  padding: 0 1.5rem;
+}
+
+svg {
+  display: inline-block;
+  vertical-align: middle;
+}
 .App {
   text-align: center;
 }
