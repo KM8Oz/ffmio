@@ -18,10 +18,23 @@ body {
   margin: 0;
   padding: 0 1.5rem;
 }
-
+li{
+  float: left;
+}
+ul{
+  list-style: none outside none; margin:0; padding: 0; text-align: center; 
+  width: 150px;
+  display: inline-block;
+  text-align: left;
+}
 svg {
   display: inline-block;
   vertical-align: middle;
+  width: 100vw;
+  height: 100vh;
+  display: inline-block;
+  position: fixed;
+  overflow: inherit;
 }
 .App {
   text-align: center;
