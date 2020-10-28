@@ -11,6 +11,8 @@ import {
   useRouteMatch,
   useParams
 } from "react-router-dom";
+import {ThemeContext,themes} from './settings'
+
 function App() {
   return (
     <>
@@ -23,7 +25,10 @@ function App() {
         <DataMg />
       </Route>
       <Route path="/">
-        <Map />
+      <ThemeContext.Provider value={themes.light}>
+        <Map/>
+       
+        </ThemeContext.Provider>
       </Route>
     </Switch>
    </Router>

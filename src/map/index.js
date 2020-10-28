@@ -11,13 +11,14 @@ function Map(props) {
     const [content, setContent] = useState({});
     const [rows, setRows] = useState([]);
     const [fisheries, setFisheries] = useState();
+    const [open, setOpen] = useState(false);
     return (
         <div>
-            <MapChart setTooltipContent={setContent} setRows={setRows} fisheries={fisheries}/>
-            <ReactTooltip place="bottom" type="light" effect="float" style={{ display: 'inline',padding:'none',alignItems:'center'
+            <MapChart setTooltipContent={setContent} setRows={setRows} setOpen={setOpen} fisheries={fisheries}/>
+            { content === "" ||  <ReactTooltip place="bottom" type="light" effect="float" style={{ display: 'inline',padding:'none',alignItems:'center'
         ,justifyContent:'left'
         }}>
-                <ul >
+             <ul >
                     <li><kbd>CONTINENT:</kbd>{content.CONTINENT}</li>
                     <li><kbd>FORMAL_EN:</kbd>{content.FORMAL_EN}</li>
                     <li><kbd> GDP_MD_EST:</kbd>{content.GDP_MD_EST}</li>
@@ -32,8 +33,19 @@ function Map(props) {
                     <li><kbd>REGION_UN:</kbd>{content.REGION_UN}</li>
                     <li> <kbd>SUBREGION:</kbd>{content.SUBREGION}</li>
                 </ul>
-            </ReactTooltip>
-            <DataTable rows={rows} setFisheries={setFisheries} />
+            </ReactTooltip>}
+            <DataTable rows={rows} setFisheries={setFisheries} setOpen={setOpen} open={open}/>
         </div>
     );
+}
+
+document.oncontextmenu = function(e){
+//  var evt = new Object({keyCode:93});
+ stopEvent(e);
+}
+function stopEvent(event){
+ if(event.preventDefault != undefined)
+  event.preventDefault();
+ if(event.stopPropagation != undefined)
+  event.stopPropagation();
 }

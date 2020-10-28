@@ -2,6 +2,7 @@
 html {
   font-family: system-ui, sans-serif;
   font-size: 1.25rem;
+  overflow: hidden;
 }
 .MuiDataGrid-root{
   font-size: 0.6rem !important;
@@ -14,9 +15,19 @@ html {
   width: fit-content  !important;
   max-width: fit-content !important;
 }
+.MuiDialog-root{
+       position: fixed !important;
+      z-index: 1300 !important;
+      bottom: 0px !important;
+      top: 0px !important;
+      width:max-content !important;
+      left: unset !important;
+      right: unset !important;
+}
 body {
   margin: 0;
   padding: 0 1.5rem;
+  overflow: hidden;
 }
 li{
   float: left;
@@ -74,3 +85,8 @@ svg {
     transform: rotate(360deg);
   }
 }
+/* #root{
+  height: 100vh;
+    width: 100vw;
+    display: grid;
+} */

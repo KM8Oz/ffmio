@@ -1,8 +1,11 @@
-import React,{useState,useRef,useReducer} from 'react';
+import React,{useState,useRef,useReducer,useContext,forwardRef} from 'react';
 import { Table, Column, HeaderCell, Cell } from 'rsuite-table';
 import { Rnd } from 'react-rnd';
 import { IconButton }  from '@material-ui/core'
 import {AddCircle,RemoveCircle} from '@material-ui/icons'
+import { ThemeContext } from '../../settings'
+import Slide from '@material-ui/core/Slide';
+import Dialog from '@material-ui/core/Dialog';
 // import 'rsuite-table/dist/css/rsuite-table.css'
 
 
@@ -12,6 +15,7 @@ const ImageCell = ({ rowData, dataKey, ...rest }) => (
     <img src={rowData[dataKey]} width="50" />
   </Cell>
 );
+
 const initialState = {icon: <AddCircle style={{position:'relative'}}/>,status:false};
 
 function reducer(switcher, action) {
@@ -22,24 +26,38 @@ function reducer(switcher, action) {
       throw new Error();
   }
 }
-//https://fishbase.ropensci.org/species?limit=10&FBname=Atlantic%20mackerel&fields=image,BodyShapeI,MainCatchingMethod,Weight,AnaCat,DemersPelag,Fresh,Saltwater,Author,UsedforAquaculture,Comments,FBname,Species,Genus,Importance,PriceCateg,PriceReliability,Length,Vulnerability,Subfamily
-const DataTable = ({rows,setFisheries}) => {
+const Transition = forwardRef(function Transition(props, ref) {
+  return <Slide direction="down" ref={ref} {...props} mountOnEnter unmountOnExit/>;
+});
+const DataTable = ({rows,setFisheries,open,setOpen}) => {
+  const settings =  useContext(ThemeContext) 
  // console.log(rows);
  const table = useRef(null)
+
  const [drog,setDrag] = useState(true)
+//  const handleClickOpen = () => {
+//   setOpen(true);
+// };
+
+const handleClose = () => {
+  setOpen(false);
+};
  const [switcher, dispatch] = useReducer(reducer,initialState)
+
   return(
-   <Rnd 
-   dragHandleClassName='rs-table-row-header'
-    default={{
-        x: 0,
-        y: 0,
-        width: 400,
-        height:300
-       }}
-         >
-  <Table ref={table} data={rows.map(e=>e={...e,fishery_name:e.fishery_name.replaceAll('|',',')})} wordWrap
-   style={{fontSize:'.6em',width:'100%'}}
+  //  <Rnd 
+  //  dragAxis={'x'}
+  //  dragGrid={[10,20]}
+  //  dragHandleClassName='rs-table-row-header'
+  //  style={{margin:'10px 0px 0px 0px'}}
+  //   default={{...settings,x:0,y:0}}
+  //        >
+  <Dialog fullScreen open={open}  ref={table} onClose={handleClose} TransitionComponent={Transition}
+  >
+  <Table  data={rows.map(e=>e={...e,fishery_name:e.fishery_name.replaceAll('|',',')})} wordWrap
+   style={{fontSize:'.6em'}}
+   height={settings.Rnd.height}
+   width={settings.Rnd.width}
   >
     <Column  align={'center'} 
          style={{padding:'unset',margin:'unset',maxWidth:'100%'  ,display: 'flex',
@@ -91,6 +109,8 @@ const DataTable = ({rows,setFisheries}) => {
     </Column>
     
   </Table>
-  </Rnd>)
+  </Dialog>
+  // </Rnd>
+  )
 };
 export default DataTable;
