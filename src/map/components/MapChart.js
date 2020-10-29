@@ -1,4 +1,6 @@
 import React, { memo, useState } from "react";
+import { geoPath, geoOrthographic } from "d3-geo"
+
 import {
   ZoomableGroup,
   ComposableMap,
@@ -6,17 +8,14 @@ import {
   Geography,
   Marker,
   Line,
-  Annotation
+  Annotation,
+  Graticule,
+  Sphere  
 } from "react-simple-maps";
-import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
-//import fs from 'fs';
-// import {DOMParser}from 'xmldom';
+import { PatternLines } from "@vx/pattern";
+import { Alert } from 'rsuite'
 import { kml } from '@tmcw/togeojson'
 var parser = new DOMParser();
-// function Alert(props) {
-//   return <MuiAlert elevation={6} variant="filled" {...props} />;
-// }
 const geoUrl = "./world-110m.json";
 async function togeoJSON(url = '') {
   // Default options are marked with *
@@ -27,17 +26,16 @@ async function togeoJSON(url = '') {
     .then(function (xml) {
       return kml(new DOMParser().parseFromString(xml, "text/xml"))
     });
-  //  return new DOMParser().parseFromString(response, 'text/xml') // parses JSON response into native JavaScript objects
   return response
 }
 async function getfish(name = '') {
   // Default options are marked with *
+  console.log(name);
   const response = await fetch(`https://fishbase.ropensci.org/species?limit=10&FBname=${name}&fields=image,BodyShapeI,MainCatchingMethod,Weight,AnaCat,DemersPelag,Fresh,Saltwater,Author,UsedforAquaculture,Comments,FBname,Species,Genus,Importance,PriceCateg,PriceReliability,Length,Vulnerability,Subfamily`)
     .then(function (response) {
       return response.json();
     })
 
-  //  return new DOMParser().parseFromString(response, 'text/xml') // parses JSON response into native JavaScript objects
   return response
 }
 function proxy(url) {
@@ -54,7 +52,6 @@ async function getAllFisheriesBycountry(name) {
     .then(function (jsons) {
       return jsons.filter(e => e.fishery_name.replaceAll(/ /g, '').split('|').indexOf(`${name}`) !== -1)
     });
-  //  return new DOMParser().parseFromString(response, 'text/xml') // parses JSON response into native JavaScript objects
   return response
 }
 // getAllFisheriesBycountry('Morocco').then(res => {
@@ -78,6 +75,12 @@ const getMarker = (geos) => {
     </Marker>))
 
 }
+function generateCircle(deg) {
+  if (!deg) return [[-180, 0], [-90, 0], [0, 0], [90, 0], [180, 0]];
+  return new Array(361).fill(1).map((d, i) => {
+    return [-180 + i, deg];
+  });
+}
 const getlines = (geos) => {
   console.log('geos:', geos);
   return (
@@ -85,12 +88,11 @@ const getlines = (geos) => {
       // from={[2.3522, 48.8566]}
       // to={[-74.006, 40.7128]}
       coordinates={geos.line}
-      stroke="blue"
-      fill='blue'
-      // children={}
+      stroke="yellow"
+      fill='yellow'
       style={{ zIndex: 'inherit' }}
       fillRule='evenodd'
-      fillOpacity='0.3'
+       fillOpacity='0.8'
       strokeWidth={0.1}
       strokeLinecap="round"
     />
@@ -115,16 +117,60 @@ connectorProps={{
 </text>
 </Annotation >)
 }
-const MapChart = ({ setTooltipContent, setRows, fisheries, setOpen }) => {
+
+const MapChart = ({ setTooltipContent, setRows, fisheries, setOpen, table }) => {
   const [Aria, setAria] = useState()
   const [fisherie, setFisherie] = useState()
   const [typographies, setTypographies] = useState()
   const [Annots, setAnnots] = useState()
-  const [opensnak, setOpensnak] = useState(false);
+  const [fname , setFname] = useState()
   const [Fish, setFish] = useState()
+  const [sphere,setSphere] = useState({
+    center:[0,0],
+    isPressed:false,
+    mouseX:null,
+    mouseY:null,
+    scale: 400 , 
+    rotate:[0,0,0],
+    center:[0,0],
+  })
+  const handleMouseDown=({ pageX, pageY })=>{
+    setSphere({...sphere,
+      isPressed: true,
+      mouseX: pageX,
+      mouseY: pageY,
+    })
+  }
+  const handleMouseMove=({ pageX, pageY })=>{
+    if (!sphere.isPressed) return
+    const differenceX = sphere.mouseX - pageX
+    const differenceY = sphere.mouseY - pageY
+    setSphere({...sphere,
+      rotate: [
+        sphere.rotate[0] - differenceX / 2,
+        sphere.rotate[1] + differenceY / 2,
+        0,
+      ],
+      mouseX: pageX,
+      mouseY: pageY,
+    })
+  }
+  const projection = ()=>{
+    return geoOrthographic()
+      .translate([ 800 / 2, 800 / 2 ])
+      .rotate(sphere.rotate)
+      .clipAngle(90)
+      .scale(200)
+  }
+  const handleMouseUp=({ pageX, pageY })=>{
+    setSphere({...sphere,
+      isPressed: false,
+    })
+  }
   // const [marker,setMarker] = useState()
   // useEffect(()=>{
   // },[fisherie])
+
   const coordinates = (geos) => {
     // console.log(geos);
     const data1 = geos.features.filter(s => s.geometry.type === "Polygon")[0]?.geometry.coordinates[0]
@@ -134,46 +180,71 @@ const MapChart = ({ setTooltipContent, setRows, fisheries, setOpen }) => {
     if (geos.features) {
       return { line: data1, point: [data2[0], data2[1]], props: data3 }
     } else {
-      setOpensnak(true)
+      Alert.info('прости! никаких графических данных для этого промысла!')
       return []
     }
   }
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpensnak(false);
-  };
-  if (JSON.stringify(fisheries) !== JSON.stringify(fisherie)) {
-    setFisherie(fisheries)
+ const asynceds = async function(a,b){
+  return await a(b)
+ } 
+  if (JSON.stringify(fisheries) !== fisherie) {
+    setFisherie(JSON.stringify(fisheries))
     let nm = fisheries.fishery_name.split(',')[0]
-    setFish(getfish(nm.substring(0, nm.length - 1)))
-    // console.log(getfish(fisheries.fishery_name.replaceAll(' ','').split(',')[0]));
-
-    if (fisheries.map_info) {
-      togeoJSON(proxy(fisheries.map_info)).then(res => {
-        // setTypographies(getMarker(res.features[1].geometry.coordinates[0]));
-        const geosg = coordinates(res)
-        setTypographies(getlines(geosg));
-        setAnnots(getAnot(geosg))
-        //console.log(getMarker(res.features[1].geometry.coordinates[0]));
+    let name = nm.substring(0, nm.length - 1)
+    
+    if(name !== fname){
+      setFname(name)
+      asynceds(getfish,name).then((res)=>{
+        console.log(res);
+        setFish(res)
       })
-    } else {
-      setOpensnak(true)
+      // setFish(getfish(name))
+      //console.log(getfish(fisheries.fishery_name.replaceAll(' ','').split(',')[0]));
+  
+      if (fisheries.map_info) {
+        togeoJSON(proxy(fisheries.map_info)).then(res => {
+          // setTypographies(getMarker(res.features[1].geometry.coordinates[0]));
+          const geosg = coordinates(res)
+          setTypographies(getlines(geosg));
+          setAnnots(getAnot(geosg))
+          //console.log(getMarker(res.features[1].geometry.coordinates[0]));
+        })
+      } else {
+        Alert.info('прости! никаких графических данных для этого промысла!')
+  
+      } 
     }
+   
 
   }
   return (
     <>
-      <ComposableMap data-tip="" projectionConfig={{ scale: 200 }}>
-        <ZoomableGroup>
-          <Geographies geography={geoUrl}>
+       <ComposableMap data-tip="" projection="geoEqualEarth" projectionConfig={sphere}
+        > 
+        <ZoomableGroup 
+        center={sphere.center} 
+        //  translateExtent={[[Infinity, Infinity], [Infinity, Infinity]]}
+        //  onMouseDown={handleMouseDown}
+        //  onMouseMove={handleMouseMove}
+        //  onMouseUp={handleMouseUp}  
+        //  onMouseLeave={handleMouseUp} 
+        >
+        <Graticule stroke="#DDD" strokeWidth={0.3} />
+    
+          {typographies}
+        
+          <Geographies geography={geoUrl} 
+          onDrag={(evt)=>{console.log(evt);}}
+       
+          >
+
             {({ geographies }) => {
               return geographies.map(geo => (
                 <Geography
+               
                   key={geo.rsmKey}
                   geography={geo}
+                  
                   onMouseEnter={() => {
                     // console.log(geo.properties);
                     const { ABBREV,
@@ -190,7 +261,7 @@ const MapChart = ({ setTooltipContent, setRows, fisheries, setOpen }) => {
                       POP_YEAR,
                       REGION_UN,
                       SUBREGION, } = geo.properties;
-                    setTooltipContent({
+                    setTooltipContent({db:{
                       ABBREV: ABBREV,
                       CONTINENT: CONTINENT,
                       FORMAL_EN: FORMAL_EN,
@@ -204,17 +275,19 @@ const MapChart = ({ setTooltipContent, setRows, fisheries, setOpen }) => {
                       POP_RANK: POP_RANK,
                       POP_YEAR: POP_YEAR,
                       REGION_UN: REGION_UN,
-                      SUBREGION: SUBREGION
+                      SUBREGION: SUBREGION},
+                      types:'countries'
                     })
                   }
                   }
                   onMouseLeave={() => {
-                    setTooltipContent("");
+                    setTooltipContent({db:null,types:'countries'});
                   }}
                   onClick={
                     () => {
                       const { NAME, POP_EST } = geo.properties;
                       getAllFisheriesBycountry(NAME).then(res => {
+                        setTooltipContent({db:null,types:'fishries'});
                         var i = 0;
                         if (Aria === NAME) {
                           setRows([])
@@ -247,12 +320,22 @@ const MapChart = ({ setTooltipContent, setRows, fisheries, setOpen }) => {
 
 
           </Geographies>
-          {typographies}
+          <Line coordinates={generateCircle(0)} stroke="#F53" strokeWidth={0.3} />
+      <Line
+        coordinates={generateCircle(23)}
+        stroke="#776865"
+        strokeWidth={0.3}
+        strokeDasharray={[5, 5]}
+      />
+      <Line
+        coordinates={generateCircle(-24)}
+        stroke="#776865"
+        strokeWidth={0.3}
+        strokeDasharray={[5, 5]}
+      />
           {Annots}
         </ZoomableGroup>
-      </ComposableMap>
-      <Snackbar open={opensnak} color={'green'} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} autoHideDuration={6000} onClose={handleClose} message='прости! никаких графических данных для этого промысла!'>
-      </Snackbar>
+       </ComposableMap>
     </>
   );
 };

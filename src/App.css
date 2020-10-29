@@ -1,4 +1,4 @@
-@import "../node_modules/rsuite-table/dist/css/rsuite-table.css";
+@import "../node_modules/rsuite/dist/styles/rsuite-dark.css";
 html {
   font-family: system-ui, sans-serif;
   font-size: 1.25rem;
