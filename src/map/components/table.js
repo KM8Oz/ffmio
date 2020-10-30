@@ -25,7 +25,7 @@ const ImageCell = ({ rowData, dataKey, ...rest }) => (
 // const Transition = forwardRef(function Transition(props, ref) {
 //   return <Slide direction="down" ref={ref} {...props} mountOnEnter unmountOnExit/>;
 // });
-const DataTable = ({rows,setFisheries,open,setOpen}) => {
+const DataTable = ({rows,setFisheries,open,setOpen,setOpenfish}) => {
   
   const settings =  useContext(ThemeContext) 
  // console.log(rows);
@@ -95,6 +95,7 @@ const handleClose = () => {
                 setFisheries(rowData)
                 setActive(rowIndex)
                 setOpen(false)
+                setOpenfish(true)
               }else{
                 setFisheries(null)
               } 

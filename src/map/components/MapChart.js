@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
-import { geoPath, geoOrthographic } from "d3-geo"
-
+// import { geoPath, geoOrthographic } from "d3-geo"
+import  { DDG } from 'node-ddg-api'
 import {
   ZoomableGroup,
   ComposableMap,
@@ -28,15 +28,44 @@ async function togeoJSON(url = '') {
     });
   return response
 }
-async function getfish(name = '') {
+function getfish(name = '',set) {
   // Default options are marked with *
-  console.log(name);
-  const response = await fetch(`https://fishbase.ropensci.org/species?limit=10&FBname=${name}&fields=image,BodyShapeI,MainCatchingMethod,Weight,AnaCat,DemersPelag,Fresh,Saltwater,Author,UsedforAquaculture,Comments,FBname,Species,Genus,Importance,PriceCateg,PriceReliability,Length,Vulnerability,Subfamily`)
-    .then(function (response) {
-      return response.json();
+  //console.log(name);
+  var ddg = new DDG('ffmio');
+ return new Promise((resolve)=>{
+    fetch(`https://fishbase.ropensci.org/species?limit=10&FBname=${name}&fields=image,BodyShapeI,MainCatchingMethod,Weight,AnaCat,DemersPelag,Fresh,Saltwater,Author,UsedforAquaculture,Comments,FBname,Species,Genus,Importance,PriceCateg,PriceReliability,Length,Vulnerability,Subfamily`)
+    .then(function (response1) {
+    return response1.json()
     })
-
-  return response
+    .then((res)=>{
+      ddg.instantAnswer(name, {skip_disambig: '0',}, function(err, response) {
+        if(!res){
+        set(false)
+        }
+        resolve({data:res,datav1:response || { AnswerType: '',
+        DefinitionURL: '',
+        ImageHeight: '',
+        Heading: '',
+        Type: '',
+        Entity: '',
+        RelatedTopics: [],
+        Answer: '',
+        Results: [],
+        AbstractURL: '',
+        AbstractSource: '',
+        Image: '',
+        Abstract: '',
+        ImageWidth: '',
+        Definition: '',
+        AbstractText: '',
+        DefinitionSource: '',
+        Infobox: '',
+        meta: null,
+        ImageIsLogo: '',
+        Redirect: '' }})
+      });
+    })
+  })
 }
 function proxy(url) {
   const res = 'https://cors-anywhere.herokuapp.com/' + url;
@@ -88,8 +117,8 @@ const getlines = (geos) => {
       // from={[2.3522, 48.8566]}
       // to={[-74.006, 40.7128]}
       coordinates={geos.line}
-      stroke="yellow"
-      fill='yellow'
+      stroke="blue"
+      fill='blue'
       style={{ zIndex: 'inherit' }}
       fillRule='evenodd'
        fillOpacity='0.8'
@@ -104,13 +133,13 @@ subject={geos.point}
 dx={-90}
 dy={-30}
 connectorProps={{
-  stroke: "#444",
+  stroke: "#fff",
   strokeWidth: 0.2,
   strokeLinecap: "round"
 }}
 >
 
- <text x="-8" textAnchor="end" style={{fontSize: '6px'}} alignmentBaseline="middle" fill="#444">
+ <text x="-8" textAnchor="end" style={{fontSize: '7px'}} alignmentBaseline="middle" stroke='#fff' strokeWidth={.1} fill="#444">
   {
   (geos.props?.name||geos.props?.description).replace('.kml','') 
   }
@@ -118,13 +147,13 @@ connectorProps={{
 </Annotation >)
 }
 
-const MapChart = ({ setTooltipContent, setRows, fisheries, setOpen, table }) => {
+const MapChart = ({ setTooltipContent, setRows, fisheries, setOpen, table, setFish, setOpenfish }) => {
   const [Aria, setAria] = useState()
   const [fisherie, setFisherie] = useState()
   const [typographies, setTypographies] = useState()
   const [Annots, setAnnots] = useState()
   const [fname , setFname] = useState()
-  const [Fish, setFish] = useState()
+
   const [sphere,setSphere] = useState({
     center:[0,0],
     isPressed:false,
@@ -155,13 +184,13 @@ const MapChart = ({ setTooltipContent, setRows, fisheries, setOpen, table }) => 
       mouseY: pageY,
     })
   }
-  const projection = ()=>{
-    return geoOrthographic()
-      .translate([ 800 / 2, 800 / 2 ])
-      .rotate(sphere.rotate)
-      .clipAngle(90)
-      .scale(200)
-  }
+  // const projection = ()=>{
+  //   return geoOrthographic()
+  //     .translate([ 800 / 2, 800 / 2 ])
+  //     .rotate(sphere.rotate)
+  //     .clipAngle(90)
+  //     .scale(200)
+  // }
   const handleMouseUp=({ pageX, pageY })=>{
     setSphere({...sphere,
       isPressed: false,
@@ -194,12 +223,12 @@ const MapChart = ({ setTooltipContent, setRows, fisheries, setOpen, table }) => 
     
     if(name !== fname){
       setFname(name)
-      asynceds(getfish,name).then((res)=>{
+      getfish(name,setOpenfish).then((res)=>{
         console.log(res);
         setFish(res)
       })
       // setFish(getfish(name))
-      //console.log(getfish(fisheries.fishery_name.replaceAll(' ','').split(',')[0]));
+    console.log(name);
   
       if (fisheries.map_info) {
         togeoJSON(proxy(fisheries.map_info)).then(res => {

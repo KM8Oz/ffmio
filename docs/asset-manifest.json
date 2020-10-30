@@ -1,26 +1,25 @@
 {
   "files": {
-    "main.css": "/ffmio/static/css/main.35255d88.chunk.css",
-    "main.js": "/ffmio/static/js/main.a1168c95.chunk.js",
-    "main.js.map": "/ffmio/static/js/main.a1168c95.chunk.js.map",
-    "runtime-main.js": "/ffmio/static/js/runtime-main.77fb7da3.js",
-    "runtime-main.js.map": "/ffmio/static/js/runtime-main.77fb7da3.js.map",
-    "static/css/2.acab5bb2.chunk.css": "/ffmio/static/css/2.acab5bb2.chunk.css",
-    "static/js/2.bb1fe83d.chunk.js": "/ffmio/static/js/2.bb1fe83d.chunk.js",
-    "static/js/2.bb1fe83d.chunk.js.map": "/ffmio/static/js/2.bb1fe83d.chunk.js.map",
-    "static/js/3.fae8b05f.chunk.js": "/ffmio/static/js/3.fae8b05f.chunk.js",
-    "static/js/3.fae8b05f.chunk.js.map": "/ffmio/static/js/3.fae8b05f.chunk.js.map",
+    "main.css": "/ffmio/static/css/main.1238789b.chunk.css",
+    "main.js": "/ffmio/static/js/main.6ad438f6.chunk.js",
+    "main.js.map": "/ffmio/static/js/main.6ad438f6.chunk.js.map",
+    "runtime-main.js": "/ffmio/static/js/runtime-main.adb88dcf.js",
+    "runtime-main.js.map": "/ffmio/static/js/runtime-main.adb88dcf.js.map",
+    "static/css/2.ec35cab0.chunk.css": "/ffmio/static/css/2.ec35cab0.chunk.css",
+    "static/js/2.fe2f9830.chunk.js": "/ffmio/static/js/2.fe2f9830.chunk.js",
+    "static/js/2.fe2f9830.chunk.js.map": "/ffmio/static/js/2.fe2f9830.chunk.js.map",
+    "static/js/3.9dd18d5a.chunk.js": "/ffmio/static/js/3.9dd18d5a.chunk.js",
+    "static/js/3.9dd18d5a.chunk.js.map": "/ffmio/static/js/3.9dd18d5a.chunk.js.map",
     "index.html": "/index.html",
-    "static/css/2.acab5bb2.chunk.css.map": "/ffmio/static/css/2.acab5bb2.chunk.css.map",
-    "static/css/main.35255d88.chunk.css.map": "/ffmio/static/css/main.35255d88.chunk.css.map",
-    "static/js/2.bb1fe83d.chunk.js.LICENSE.txt": "/ffmio/static/js/2.bb1fe83d.chunk.js.LICENSE.txt",
-    "static/media/logo.103b5fa1.svg": "/ffmio/static/media/logo.103b5fa1.svg"
+    "static/css/2.ec35cab0.chunk.css.map": "/ffmio/static/css/2.ec35cab0.chunk.css.map",
+    "static/css/main.1238789b.chunk.css.map": "/ffmio/static/css/main.1238789b.chunk.css.map",
+    "static/js/2.fe2f9830.chunk.js.LICENSE.txt": "/ffmio/static/js/2.fe2f9830.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "/ffmio/static/js/runtime-main.77fb7da3.js",
-    "/ffmio/static/css/2.acab5bb2.chunk.css",
-    "/ffmio/static/js/2.bb1fe83d.chunk.js",
-    "/ffmio/static/css/main.35255d88.chunk.css",
-    "/ffmio/static/js/main.a1168c95.chunk.js"
+    "/ffmio/static/js/runtime-main.adb88dcf.js",
+    "/ffmio/static/css/2.ec35cab0.chunk.css",
+    "/ffmio/static/js/2.fe2f9830.chunk.js",
+    "/ffmio/static/css/main.1238789b.chunk.css",
+    "/ffmio/static/js/main.6ad438f6.chunk.js"
   ]
 }
