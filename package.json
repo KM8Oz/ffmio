@@ -29,7 +29,7 @@
     "react-tooltip": "^4.2.10",
     "rsuite": "^4.8.4",
     "web-vitals": "^0.2.4",
-    "xmldom": "^0.3.0"
+    "xmldom": "^0.6.0"
   },
   "scripts": {
     "start": "react-scripts start",
